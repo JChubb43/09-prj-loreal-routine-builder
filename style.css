@@ -81,6 +81,27 @@ body {
   margin-bottom: 20px;
 }
 
+.chat-message {
+  display: flex;
+  margin-bottom: 12px;
+}
+
+.chat-message.user {
+  justify-content: flex-end;
+}
+
+.message-bubble {
+  max-width: 85%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: #e7e7e7;
+}
+
+.chat-message.user .message-bubble {
+  background: #000;
+  color: #fff;
+}
+
 /* placeholder message */
 .placeholder-message {
   width: 100%;
@@ -186,6 +207,7 @@ body {
   display: flex;
   gap: 15px;
   min-height: 160px;
+  cursor: pointer;
 }
 
 .product-card img {
@@ -230,6 +252,14 @@ body {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+}
+
+.selected-product {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  background: #f5f5f5;
+  font-size: 14px;
 }
 
 .generate-btn {
