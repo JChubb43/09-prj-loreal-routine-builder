@@ -1,5 +1,6 @@
 /* Get references to DOM elements */
 const categoryFilter = document.getElementById("categoryFilter");
+const productSearch = document.getElementById("productSearch");
 const productsContainer = document.getElementById("productsContainer");
 const selectedProductsList = document.getElementById("selectedProductsList");
 const generateRoutine = document.getElementById("generateRoutine");
@@ -15,6 +16,29 @@ const selectedProductsStorageKey = "selectedProducts";
 
 /* Keep track of the products the user selects */
 let selectedProducts = [];
+
+/* Detect the browser language and use RTL for right-to-left languages */
+const browserLanguage =
+  navigator.languages && navigator.languages.length > 0
+    ? navigator.languages[0]
+    : navigator.language;
+const languageCode = browserLanguage.split("-")[0].toLowerCase();
+const rtlLanguages = [
+  "ar",
+  "fa",
+  "he",
+  "iw",
+  "ur",
+  "ps",
+  "sd",
+  "dv",
+  "yi",
+];
+
+document.documentElement.lang = browserLanguage;
+document.documentElement.dir = rtlLanguages.includes(languageCode)
+  ? "rtl"
+  : "ltr";
 
 /* Load saved products from local storage */
 function loadSelectedProducts() {
@@ -53,19 +77,45 @@ If a user's query is unrelated to L’Oréal products, routines, recommendations
 
 let messages = [systemMessage];
 
-/* Show initial placeholder until user selects a category */
-productsContainer.innerHTML = `
-  <div class="placeholder-message">
-    Select a category to view products
-  </div>
-`;
-
 /* Load product data from JSON file */
 async function loadProducts() {
   const response = await fetch("products.json");
   const data = await response.json();
   return data.products;
 }
+
+let allProducts = [];
+
+/* Keep the category and search filters working together */
+async function filterProducts() {
+  if (allProducts.length === 0) {
+    allProducts = await loadProducts();
+  }
+
+  const selectedCategory = categoryFilter.value;
+  const searchText = productSearch.value.trim().toLowerCase();
+
+  const matchingProducts = allProducts.filter((product) => {
+    const matchesCategory =
+      selectedCategory === "" || product.category === selectedCategory;
+    const searchableText =
+      `${product.name} ${product.brand} ${product.description} ${product.category}`.toLowerCase();
+    const matchesSearch =
+      searchText === "" || searchableText.includes(searchText);
+
+    return matchesCategory && matchesSearch;
+  });
+
+  if (matchingProducts.length === 0) {
+    productsContainer.innerHTML =
+      '<div class="placeholder-message">No matching products found</div>';
+  } else {
+    displayProducts(matchingProducts);
+  }
+}
+
+/* Show all products initially, matching the All Categories option */
+filterProducts();
 
 /* Create HTML for displaying product cards */
 function displayProducts(products) {
@@ -239,19 +289,9 @@ function updateSelectedProducts() {
 /* Restore the saved selected products in the list when the page opens */
 updateSelectedProducts();
 
-/* Filter and display products when category changes */
-categoryFilter.addEventListener("change", async (e) => {
-  const products = await loadProducts();
-  const selectedCategory = e.target.value;
-
-  /* filter() creates a new array containing only products 
-     where the category matches what the user selected */
-  const filteredProducts = products.filter(
-    (product) => product.category === selectedCategory,
-  );
-
-  displayProducts(filteredProducts);
-});
+/* Filter and display products when category or search text changes */
+categoryFilter.addEventListener("change", filterProducts);
+productSearch.addEventListener("input", filterProducts);
 
 /* Add a message to the chat window */
 function addMessage(role, text) {

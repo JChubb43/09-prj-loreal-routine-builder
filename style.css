@@ -40,10 +40,28 @@ body {
 .search-section {
   margin: 30px 0;
   display: flex;
+  gap: 12px;
+}
+
+[dir="rtl"] .search-section,
+[dir="rtl"] .chat-form,
+[dir="rtl"] .chat-window,
+[dir="rtl"] .selected-product,
+[dir="rtl"] .dialog-content {
+  text-align: start;
+}
+
+.search-section input {
+  flex: 1;
+  padding: 16px;
+  font-size: 18px;
+  border: 2px solid #000;
+  border-radius: 8px;
+  background-color: white;
 }
 
 .search-section select {
-  width: 100%;
+  flex: 1;
   padding: 16px;
   font-size: 18px;
   border: 2px solid #000;
@@ -73,6 +91,8 @@ body {
 
 .chat-window {
   padding: 20px;
+  direction: inherit;
+  text-align: start;
   font-size: 18px;
   line-height: 1.5;
   height: 250px;
@@ -121,6 +141,7 @@ body {
 .chat-form input {
   flex: 1;
   padding: 12px;
+  direction: inherit;
   font-size: 18px;
   border: none;
   border-bottom: 2px solid #ccc;
@@ -195,8 +216,12 @@ body {
 .products-grid {
   display: flex;
   flex-wrap: wrap;
+  align-content: flex-start;
   gap: 20px;
   margin: 30px 0;
+  max-height: 639px;
+  overflow-y: auto;
+  padding-inline-end: 8px;
 }
 
 .product-card {
@@ -277,7 +302,7 @@ body {
 .close-dialog {
   position: absolute;
   top: 10px;
-  right: 12px;
+  inset-inline-end: 12px;
   border: none;
   background: transparent;
   font-size: 28px;
@@ -375,5 +400,5 @@ body {
 }
 
 .generate-btn i {
-  margin-right: 8px;
+  margin-inline-end: 8px;
 }
