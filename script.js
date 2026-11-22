@@ -7,16 +7,19 @@ const chatForm = document.getElementById("chatForm");
 const chatWindow = document.getElementById("chatWindow");
 const userInput = document.getElementById("userInput");
 
-const workerUrl =  `https://loralchatbot.chubbjessie43.workers.dev/`
+const workerUrl = `https://loralchatbot.chubbjessie43.workers.dev/`;
 
 /* Keep track of the products the user selects */
 let selectedProducts = [];
 
 /* Keep track of the bot conversation */
 let messages = [
-  { role: 'system', content: `You are a friendly, expert Cosmetologist, specializing in L’Oréal’s extensive range of products—makeup, skincare, haircare, and fragrances. You recommend useful products from L’Oréal and provide personalized routines. 
+  {
+    role: "system",
+    content: `You are a friendly, expert Cosmetologist, specializing in L’Oréal’s extensive range of products—makeup, skincare, haircare, and fragrances. You recommend useful products from L’Oréal and provide personalized routines. 
 
-  If a user's query is unrelated L’Oréal products, routines, recommendations, or beauty-related topics, respond by stating that you do not know.`}
+  If a user's query is unrelated L’Oréal products, routines, recommendations, or beauty-related topics, respond by stating that you do not know.`,
+  },
 ];
 
 /* Show initial placeholder until user selects a category */
@@ -92,6 +95,19 @@ categoryFilter.addEventListener("change", async (e) => {
   displayProducts(filteredProducts);
 });
 
+// Convert the bot's Markdown into safe HTML for the message bubble.
+function renderBotMessage(bubble, content) {
+  const escapedContent = document.createElement("div");
+  escapedContent.textContent = content;
+
+  bubble.innerHTML = escapedContent.innerHTML
+    .replace(/^### (.+)$/gm, "<h3>$1</h3>")
+    .replace(/^## (.+)$/gm, "<h2>$1</h2>")
+    .replace(/^# (.+)$/gm, "<h1>$1</h1>")
+    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+    .replace(/\n/g, "<br>");
+}
+
 /* Add a message to the chat window */
 function addMessage(role, text) {
   const message = document.createElement("div");
@@ -162,7 +178,7 @@ generateRoutine.addEventListener("click", async () => {
 });
 
 /* Chat form submission handler */
-chatForm.addEventListener("submit", async(event) => {
+chatForm.addEventListener("submit", async (event) => {
   event.preventDefault(); // Prevent the form from submitting the traditional way
 
   const userMessage = userInput.value.trim();
@@ -171,16 +187,16 @@ chatForm.addEventListener("submit", async(event) => {
   }
 
   // Add the user's message to the conversation history
-  messages.push({ role: 'user', content: userMessage });
+  messages.push({ role: "user", content: userMessage });
   addMessage("user", userMessage);
   const thinkingMessage = addMessage("bot", "Thinking...");
 
   try {
     // Send a POST request to your Cloudflare Worker
     const response = await fetch(workerUrl, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         messages: messages,
@@ -199,7 +215,7 @@ chatForm.addEventListener("submit", async(event) => {
     const replyText = result.choices[0].message.content;
 
     // Add the Worker's response to the conversation history
-    messages.push({ role: 'assistant', content: replyText });
+    messages.push({ role: "assistant", content: replyText });
 
     // Replace the temporary loading bubble with the response.
     renderBotMessage(
@@ -207,11 +223,11 @@ chatForm.addEventListener("submit", async(event) => {
       replyText,
     );
   } catch (error) {
-    console.error('Error:', error); // Log the error
+    console.error("Error:", error); // Log the error
     thinkingMessage.querySelector(".message-bubble").textContent =
-      'Sorry, something went wrong. Please try again later.';
+      "Sorry, something went wrong. Please try again later.";
   }
 
   // Clear the input field
-  userInput.value = '';
+  userInput.value = "";
 });
